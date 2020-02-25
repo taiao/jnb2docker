@@ -1,6 +1,7 @@
 How to make a release
 =====================
 
+* Update the command-line help in README.md
 * Run the following command to deploy the artifact:
 
   ```
