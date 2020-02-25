@@ -1,2 +1,2 @@
 # jnb2docker
-Converts Java Jupyter notebooks into Docker containers.
+Converts Java Jupyter notebooks into Docker images.
