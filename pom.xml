@@ -5,7 +5,7 @@
 
   <groupId>com.github.fracpete</groupId>
   <artifactId>jnb2docker</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   <packaging>jar</packaging>
 
   <parent>
@@ -83,7 +83,7 @@
     <connection>scm:git:https://github.com/fracpete/jnb2docker</connection>
     <developerConnection>scm:git:https://github.com/fracpete/jnb2docker</developerConnection>
     <url>https://github.com/fracpete/jnb2docker</url>
-    <tag>HEAD</tag>
+    <tag>jnb2docker-0.0.1</tag>
   </scm>
 
   <dependencies>
