@@ -77,6 +77,9 @@ public class Main {
   /** the generated Java code file. */
   protected transient File m_JavaFile;
 
+  /** the generated Dockerfile. */
+  protected transient File m_DockerFile;
+
   /**
    * Initializes the object.
    */
@@ -101,6 +104,7 @@ public class Main {
     m_Dependencies       = null;
     m_JavaCode           = null;
     m_JavaFile           = null;
+    m_DockerFile         = null;
   }
 
   /**
@@ -543,6 +547,9 @@ public class Main {
 
     getLogger().info("# lines of code/comments: " + m_JavaCode.size());
 
+    m_JavaCode.add("// exit jshell");
+    m_JavaCode.add("/exit");
+
     // output code
     m_JavaFile = new File(m_OutputDir.getAbsolutePath() + "/code.jsh");
     try {
@@ -551,6 +558,43 @@ public class Main {
     catch (Exception e) {
       getLogger().log(Level.SEVERE, "Failed to generate Java source code file: " + m_JavaFile, e);
       return "Failed to generate Java source code file: " + m_JavaFile;
+    }
+
+    return null;
+  }
+
+  /**
+   * Creates the Dockerfile.
+   *
+   * @return		null if successful, otherwise error message
+   */
+  protected String createDockerfile() {
+    List<String>	content;
+
+    content      = new ArrayList<>();
+    m_DockerFile = new File(m_OutputDir.getAbsolutePath() + "/Dockerfile");
+
+    content.add("FROM " + m_DockerBaseImage);
+    if ((m_DockerInstructions != null) && (m_DockerInstructions.exists()) && !m_DockerInstructions.isDirectory()) {
+      try {
+        content.addAll(Files.readAllLines(m_DockerInstructions.toPath()));
+      }
+      catch (Exception e) {
+        getLogger().log(Level.SEVERE, "Failed to read docker instructions from: " + m_DockerInstructions, e);
+        return "Failed to read docker instructions from: " + m_DockerInstructions;
+      }
+    }
+
+    content.add("COPY code.jsh /jnb2docker/code.jsh");
+    content.add("COPY output/lib/* /jnb2docker/lib/");
+    content.add("CMD [\"jshell\", \"--class-path\", \"/jnb2docker/lib/*\", \"/jnb2docker/code.jsh\"]");
+
+    try {
+      Files.write(m_DockerFile.toPath(), content, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+    catch (Exception e) {
+      getLogger().log(Level.SEVERE, "Failed to write " + m_DockerFile, e);
+      return "Failed to write " + m_DockerFile;
     }
 
     return null;
@@ -580,8 +624,11 @@ public class Main {
     if ((result = initCode()) != null)
       return result;
 
+    // generate Dockerfile
+    if ((result = createDockerfile()) != null)
+      return result;
+
     // TODO
-    // - generate Dockerfile
     // - output instructions for compiling docker image
 
     return null;
