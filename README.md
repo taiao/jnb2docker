@@ -79,7 +79,7 @@ for [JShell](https://docs.oracle.com/javase/9/tools/jshell.htm) using the
 following command-line:
 
 ```commandline
-java -jar /some/where/data/jnb2docker/jnb2docker-spring-boot.jar \
+java -jar /some/where/data/jnb2docker/jnb2docker-0.0.1-spring-boot.jar \
   -i /some/where/data/notebooks/weka_filter_pipeline.ipynb \ 
   -o /some/where/output/wekaiqrcleaner \
   -b openjdk:11-jdk-slim-buster \
@@ -122,7 +122,7 @@ of data gets reduced to 36 rows.
 
 ## Releases
 
-* TODO
+* [0.0.1](https://github.com/fracpete/jnb2docker/releases/download/jnb2docker-0.0.1/jnb2docker-0.0.1-spring-boot.jar)
 
 
 ## Maven
@@ -131,6 +131,6 @@ of data gets reduced to 36 rows.
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>jnb2docker</artifactId>
-      <version>TODO</version>
+      <version>0.0.1</version>
     </dependency>
 ```
