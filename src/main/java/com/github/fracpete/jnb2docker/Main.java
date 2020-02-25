@@ -18,6 +18,8 @@ import com.google.gson.JsonParser;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +50,12 @@ public class Main {
   /** the notebook to convert. */
   protected File m_Input;
 
+  /** the docker base image to use. */
+  protected String m_DockerBaseImage;
+
+  /** any Dockerfile instructions to add beforehand. */
+  protected File m_DockerInstructions;
+
   /** the output directory. */
   protected File m_OutputDir;
 
@@ -63,6 +71,12 @@ public class Main {
   /** the collected dependencies. */
   protected transient List<String> m_Dependencies;
 
+  /** the collected Java code. */
+  protected transient List<String> m_JavaCode;
+
+  /** the generated Java code file. */
+  protected transient File m_JavaFile;
+
   /**
    * Initializes the object.
    */
@@ -74,15 +88,19 @@ public class Main {
    * Initializes the members.
    */
   protected void initialize() {
-    m_MavenHome         = null;
-    m_MavenUserSettings = null;
-    m_JavaHome          = null;
-    m_Input             = null;
-    m_OutputDir         = null;
-    m_JVM               = null;
-    m_HelpRequested     = false;
-    m_Notebook          = null;
-    m_Dependencies      = null;
+    m_MavenHome          = null;
+    m_MavenUserSettings  = null;
+    m_JavaHome           = null;
+    m_Input              = null;
+    m_DockerBaseImage    = null;
+    m_DockerInstructions = null;
+    m_OutputDir          = null;
+    m_JVM                = null;
+    m_HelpRequested      = false;
+    m_Notebook           = null;
+    m_Dependencies       = null;
+    m_JavaCode           = null;
+    m_JavaFile           = null;
   }
 
   /**
@@ -177,6 +195,46 @@ public class Main {
   }
 
   /**
+   * Sets the docker base image to use.
+   *
+   * @param image	the base image
+   * @return		itself
+   */
+  public Main dockerBaseImage(String image) {
+    m_DockerBaseImage = image;
+    return this;
+  }
+
+  /**
+   * Returns the docker base image to use ("FROM ...").
+   *
+   * @return		the base image, null if none set
+   */
+  public String getDockerBaseImage() {
+    return m_DockerBaseImage;
+  }
+
+  /**
+   * Sets the file with instructions for the Dockerfile to generate.
+   *
+   * @param dir		the file
+   * @return		itself
+   */
+  public Main dockerInstructions(File dir) {
+    m_DockerInstructions = dir;
+    return this;
+  }
+
+  /**
+   * Returns the file with instructions for the Dockerfile to generate.
+   *
+   * @return		the file, null if not used
+   */
+  public File getDockerInstructions() {
+    return m_DockerInstructions;
+  }
+
+  /**
    * Sets the output directory for the bootstrapped application.
    *
    * @param dir		the directory
@@ -264,6 +322,15 @@ public class Main {
       .type(Type.EXISTING_FILE)
       .dest("input")
       .help("The Java Jupyter notebook to convert.");
+    parser.addOption("-b", "--docker_base_image")
+      .required(true)
+      .dest("docker_base_image")
+      .help("The docker base image to use, e.g. 'openjdk:11-jdk-slim-buster'.");
+    parser.addOption("-I", "--docker_instructions")
+      .required(false)
+      .type(Type.EXISTING_FILE)
+      .dest("docker_instructions")
+      .help("The Java Jupyter notebook to convert.");
     parser.addOption("-o", "--output_dir")
       .required(true)
       .type(Type.DIRECTORY)
@@ -284,6 +351,8 @@ public class Main {
     mavenUserSettings(ns.getFile("maven_user_settings"));
     javaHome(ns.getFile("java_home"));
     input(ns.getFile("input"));
+    dockerBaseImage(ns.getString("docker_base_image"));
+    dockerInstructions(ns.getFile("docker_instructions"));
     outputDir(ns.getFile("output_dir"));
     jvm(ns.getList("jvm"));
     return true;
@@ -405,7 +474,90 @@ public class Main {
   }
 
   /**
-   * Performs the bootstrapping.
+   * Generates the lib directory based on the dependencies.
+   *
+   * @return		null if successful, otherwise error message
+   */
+  protected String initLibraries() {
+    com.github.fracpete.bootstrapp.Main		main;
+
+    if (m_Dependencies == null)
+      return "Dependencies not initialized!";
+    if (m_Dependencies.size() == 0)
+      return null;
+
+    main = new com.github.fracpete.bootstrapp.Main()
+      .dependencies(m_Dependencies)
+      .javaHome(m_JavaHome)
+      .mavenHome(m_MavenHome)
+      .mavenUserSettings(m_MavenUserSettings)
+      .outputDir(m_OutputDir);
+    return main.execute();
+  }
+
+  /**
+   * Collects and outputs the Java code.
+   *
+   * @return		null if successful, otherwise error message
+   */
+  protected String initCode() {
+    JsonArray		cells;
+    JsonObject		cell;
+    JsonArray		code;
+    String		codeLine;
+    JsonArray		comments;
+    String 		commentLine;
+
+    m_JavaCode = new ArrayList<>();
+
+    if (!m_Notebook.has("cells"))
+      return "Java Jupyter Notebook does not contain root array 'cells'?";
+
+    cells = m_Notebook.getAsJsonArray("cells");
+    for (JsonElement cellEl: cells) {
+      if (cellEl instanceof JsonObject) {
+        cell = cellEl.getAsJsonObject();
+        if (cell.has("cell_type")) {
+          if (cell.get("cell_type").getAsString().equals("code") && cell.has("source")) {
+	    code = cell.get("source").getAsJsonArray();
+	    for (JsonElement codeLineEl : code) {
+	      codeLine = codeLineEl.getAsString();
+	      if (codeLine.trim().startsWith(MAVEN_MAGIC))
+		m_JavaCode.add("// " + codeLine.replace("\n", "").replace("\r", ""));
+	      else
+		m_JavaCode.add(codeLine.replace("\n", "").replace("\r", ""));
+	    }
+	  }
+	  else if (cell.get("cell_type").getAsString().equals("markdown") && cell.has("source")) {
+	    if (m_JavaCode.size() > 0)
+	      m_JavaCode.add("");
+	    comments = cell.get("source").getAsJsonArray();
+	    for (JsonElement commentLineEl : comments) {
+	      commentLine = commentLineEl.getAsString();
+	      m_JavaCode.add("// " + commentLine.replace("\n", "").replace("\r", ""));
+	    }
+	  }
+	}
+      }
+    }
+
+    getLogger().info("# lines of code/comments: " + m_JavaCode.size());
+
+    // output code
+    m_JavaFile = new File(m_OutputDir.getAbsolutePath() + "/code.jsh");
+    try {
+      Files.write(m_JavaFile.toPath(), m_JavaCode, StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+    catch (Exception e) {
+      getLogger().log(Level.SEVERE, "Failed to generate Java source code file: " + m_JavaFile, e);
+      return "Failed to generate Java source code file: " + m_JavaFile;
+    }
+
+    return null;
+  }
+
+  /**
+   * Performs the Docker image generation.
    *
    * @return		null if successful, otherwise error message
    */
@@ -420,10 +572,15 @@ public class Main {
     if ((result = initDependencies()) != null)
       return result;
 
+    // generate lib directory with bootstrapp
+    if ((result = initLibraries()) != null)
+      return result;
+
+    // collect code
+    if ((result = initCode()) != null)
+      return result;
+
     // TODO
-    // - generate lib directory with bootstrapp
-    // - generate class
-    // - compile class against libraries
     // - generate Dockerfile
     // - output instructions for compiling docker image
 
