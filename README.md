@@ -1,6 +1,44 @@
 # jnb2docker
 Converts Java Jupyter notebooks into Docker images.
 
+## Coding conventions
+Under the hood, [JShell](https://docs.oracle.com/javase/9/tools/jshell.htm) is
+being used to execute the code from the notebook. However, JShell requires
+a certain coding style for it to work, not just any Java code that can be 
+compiled with `javac`. Statements that normally don't require surrounding in
+curly brackets need to be coded with such, otherwise `jshell` won't know
+that there is more code to come. 
+
+This code works:
+
+```java
+if (condition) {
+  dosomething;
+} else {
+  dosomethingelse;
+}
+``` 
+
+This does not:
+
+```java
+if (condition)
+  dosomething;
+else
+  dosomethingelse;
+``` 
+
+This one does not work either:
+
+```java
+if (condition) {
+  dosomething;
+} 
+else {
+  dosomethingelse;
+}
+``` 
+
 
 ## Command-line
 
