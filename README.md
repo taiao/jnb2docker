@@ -69,7 +69,7 @@ Options:
 	The docker base image to use, e.g. 'openjdk:11-jdk-slim-buster'.
 
 -I, --docker_instructions DOCKER_INSTRUCTIONS
-	The Java Jupyter notebook to convert.
+	File with additional docker instructions to use for generating the Dockerfile.
 
 -o, --output_dir OUTPUT_DIR
 	The directory to output the bootstrapped application in.

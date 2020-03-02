@@ -334,7 +334,7 @@ public class Main {
       .required(false)
       .type(Type.EXISTING_FILE)
       .dest("docker_instructions")
-      .help("The Java Jupyter notebook to convert.");
+      .help("File with additional docker instructions to use for generating the Dockerfile.");
     parser.addOption("-o", "--output_dir")
       .required(true)
       .type(Type.DIRECTORY)
