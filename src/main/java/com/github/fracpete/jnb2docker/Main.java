@@ -35,6 +35,10 @@ public class Main {
 
   public static final String MAVEN_MAGIC = "%maven ";
 
+  public static final String JARS_MAGIC = "%jars ";
+
+  public static final String JAR_GLOB = "*.jar";
+
   /** the alternative maven installation. */
   protected File m_MavenHome;
 
@@ -71,6 +75,9 @@ public class Main {
   /** the collected dependencies. */
   protected transient List<String> m_Dependencies;
 
+  /** the collected external jars. */
+  protected transient List<File> m_ExternalJars;
+
   /** the collected Java code. */
   protected transient List<String> m_JavaCode;
 
@@ -102,6 +109,7 @@ public class Main {
     m_HelpRequested      = false;
     m_Notebook           = null;
     m_Dependencies       = null;
+    m_ExternalJars       = null;
     m_JavaCode           = null;
     m_JavaFile           = null;
     m_DockerFile         = null;
@@ -450,6 +458,7 @@ public class Main {
     String		dep;
 
     m_Dependencies = new ArrayList<>();
+    m_ExternalJars = new ArrayList<>();
 
     if (!m_Notebook.has("cells"))
       return "Java Jupyter Notebook does not contain root array 'cells'?";
@@ -466,6 +475,12 @@ public class Main {
               dep = codeLine.substring(MAVEN_MAGIC.length(), codeLine.length()).trim();
               m_Dependencies.add(dep);
 	    }
+            if (codeLine.startsWith(JARS_MAGIC)) {
+              dep = codeLine.substring(JARS_MAGIC.length(), codeLine.length()).trim();
+              if (dep.endsWith(JAR_GLOB))
+                dep = dep.substring(0, dep.length() - JAR_GLOB.length());
+              m_ExternalJars.add(new File(dep));
+	    }
 	  }
 	}
       }
@@ -473,6 +488,8 @@ public class Main {
 
     if (m_Dependencies.size() > 0)
       getLogger().info("Dependencies: " + m_Dependencies);
+    if (m_ExternalJars.size() > 0)
+      getLogger().info("External jars: " + m_ExternalJars);
 
     return null;
   }
@@ -485,13 +502,15 @@ public class Main {
   protected String initLibraries() {
     com.github.fracpete.bootstrapp.Main		main;
 
-    if (m_Dependencies == null)
+    if ((m_Dependencies == null) || (m_ExternalJars == null))
       return "Dependencies not initialized!";
-    if (m_Dependencies.size() == 0)
+    if ((m_Dependencies.size() == 0) && (m_ExternalJars.size() == 0))
       return null;
 
     main = new com.github.fracpete.bootstrapp.Main()
+      .clean(true)
       .dependencies(m_Dependencies)
+      .externalJars(m_ExternalJars)
       .javaHome(m_JavaHome)
       .mavenHome(m_MavenHome)
       .mavenUserSettings(m_MavenUserSettings)
@@ -526,7 +545,7 @@ public class Main {
 	    code = cell.get("source").getAsJsonArray();
 	    for (JsonElement codeLineEl : code) {
 	      codeLine = codeLineEl.getAsString();
-	      if (codeLine.trim().startsWith(MAVEN_MAGIC))
+	      if ((codeLine.trim().startsWith(MAVEN_MAGIC)) || (codeLine.trim().startsWith(JARS_MAGIC)))
 		m_JavaCode.add("// " + codeLine.replace("\n", "").replace("\r", ""));
 	      else
 		m_JavaCode.add(codeLine.replace("\n", "").replace("\r", ""));
@@ -586,7 +605,7 @@ public class Main {
     }
 
     content.add("COPY code.jsh /jnb2docker/code.jsh");
-    content.add("COPY output/lib/* /jnb2docker/lib/");
+    content.add("COPY target/lib/* /jnb2docker/lib/");
     content.add("CMD [\"jshell\", \"--class-path\", \"/jnb2docker/lib/*\", \"/jnb2docker/code.jsh\"]");
 
     try {
@@ -628,8 +647,12 @@ public class Main {
     if ((result = createDockerfile()) != null)
       return result;
 
-    // TODO
-    // - output instructions for compiling docker image
+    // output instructions for compiling docker image
+    System.out.println();
+    System.out.println("You can compile the Docker image now as follows:");
+    System.out.println("cd " + m_OutputDir);
+    System.out.println("[sudo] docker build -t <imagename> .");
+    System.out.println();
 
     return null;
   }
