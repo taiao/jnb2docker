@@ -39,22 +39,47 @@ else {
 }
 ``` 
 
+In order to extract dependencies, you can use the following *line magics* in 
+your Notebook:
+
+* `%maven ...` -- for specifying a single maven dependency, e.g.:
+
+   ```
+   %maven nz.ac.waikato.cms.weka:weka-dev:3.9.4
+   ```
+   
+* `%jars ...` -- for specifying external jars, e.g. a single one:
+
+   ```
+   %jars /some/where/multisearch-weka-package-2020.2.17.jar
+   ```
+   
+   Or all jars in a directory:
+
+   ```
+   %jars C:/some/where/*.jar
+   ```
+
 
 ## Command-line
 
 ```commandline
 Converts Java Jupyter notebooks into Docker images.
 
-Usage: [--help] [-m MAVEN_HOME] [-u MAVEN_USER_SETTINGS] [-j JAVA_HOME] [-v JVM...]
-       -i INPUT -b DOCKER_BASE_IMAGE [-I DOCKER_INSTRUCTIONS]
+
+Usage: [--help] [-m MAVEN_HOME] [-u MAVEN_USER_SETTINGS]
+       [-j JAVA_HOME] [-v JVM...] -i INPUT
+       -b DOCKER_BASE_IMAGE [-I DOCKER_INSTRUCTIONS]
        -o OUTPUT_DIR
 
 Options:
 -m, --maven_home MAVEN_HOME
-	The directory with a local Maven installation to use instead of the bundled one.
+	The directory with a local Maven installation to use instead of the
+	bundled one.
 
 -u, --maven_user_settings MAVEN_USER_SETTINGS
-	The file with the maven user settings to use other than $HOME/.m2/settings.xml.
+	The file with the maven user settings to use other than
+	$HOME/.m2/settings.xml.
 
 -j, --java_home JAVA_HOME
 	The Java home to use for the Maven execution.
@@ -69,7 +94,8 @@ Options:
 	The docker base image to use, e.g. 'openjdk:11-jdk-slim-buster'.
 
 -I, --docker_instructions DOCKER_INSTRUCTIONS
-	File with additional docker instructions to use for generating the Dockerfile.
+	File with additional docker instructions to use for generating the
+	Dockerfile.
 
 -o, --output_dir OUTPUT_DIR
 	The directory to output the bootstrapped application in.
@@ -160,6 +186,7 @@ of data gets reduced to 36 rows.
 
 ## Releases
 
+* [0.0.2](https://github.com/fracpete/jnb2docker/releases/download/jnb2docker-0.0.2/jnb2docker-0.0.2-spring-boot.jar)
 * [0.0.1](https://github.com/fracpete/jnb2docker/releases/download/jnb2docker-0.0.1/jnb2docker-0.0.1-spring-boot.jar)
 
 
@@ -169,6 +196,6 @@ of data gets reduced to 36 rows.
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>jnb2docker</artifactId>
-      <version>0.0.1</version>
+      <version>0.0.2</version>
     </dependency>
 ```
