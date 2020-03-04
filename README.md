@@ -1,5 +1,6 @@
 # jnb2docker
-Converts Java Jupyter notebooks into Docker images.
+Converts Java Jupyter notebooks (using the [IJava](https://github.com/SpencerPark/IJava) 
+kernel) into Docker images.
 
 ## Coding conventions
 Under the hood, [JShell](https://docs.oracle.com/javase/9/tools/jshell.htm) is
@@ -98,7 +99,8 @@ Options:
 	Dockerfile.
 
 -o, --output_dir OUTPUT_DIR
-	The directory to output the bootstrapped application in.
+	The directory to output the bootstrapped application, JShell script and
+	Dockerfile in.
 ```
 
 ## Example
@@ -143,7 +145,7 @@ for [JShell](https://docs.oracle.com/javase/9/tools/jshell.htm) using the
 following command-line:
 
 ```commandline
-java -jar /some/where/data/jnb2docker/jnb2docker-0.0.1-spring-boot.jar \
+java -jar /some/where/data/jnb2docker/jnb2docker-0.0.3-spring-boot.jar \
   -i /some/where/data/notebooks/weka_filter_pipeline.ipynb \ 
   -o /some/where/output/wekaiqrcleaner \
   -b openjdk:11-jdk-slim-buster \
@@ -186,6 +188,7 @@ of data gets reduced to 36 rows.
 
 ## Releases
 
+* [0.0.3](https://github.com/fracpete/jnb2docker/releases/download/jnb2docker-0.0.3/jnb2docker-0.0.3-spring-boot.jar)
 * [0.0.2](https://github.com/fracpete/jnb2docker/releases/download/jnb2docker-0.0.2/jnb2docker-0.0.2-spring-boot.jar)
 * [0.0.1](https://github.com/fracpete/jnb2docker/releases/download/jnb2docker-0.0.1/jnb2docker-0.0.1-spring-boot.jar)
 
@@ -196,6 +199,6 @@ of data gets reduced to 36 rows.
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>jnb2docker</artifactId>
-      <version>0.0.2</version>
+      <version>0.0.3</version>
     </dependency>
 ```
