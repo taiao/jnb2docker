@@ -604,8 +604,8 @@ public class Main {
       }
     }
 
-    content.add("COPY code.jsh /jnb2docker/code.jsh");
     content.add("COPY target/lib/* /jnb2docker/lib/");
+    content.add("COPY code.jsh /jnb2docker/code.jsh");
     content.add("CMD [\"jshell\", \"--class-path\", \"/jnb2docker/lib/*\", \"/jnb2docker/code.jsh\"]");
 
     try {
