@@ -347,7 +347,7 @@ public class Main {
       .required(true)
       .type(Type.DIRECTORY)
       .dest("output_dir")
-      .help("The directory to output the bootstrapped application in.");
+      .help("The directory to output the bootstrapped application, JShell script and Dockerfile in.");
 
     return parser;
   }
