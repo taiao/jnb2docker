@@ -80,9 +80,9 @@
   </properties>
 
   <scm>
-    <connection>scm:git:ssh://git@github.com/fracpete/jnb2docker</connection>
-    <developerConnection>scm:git:ssh://git@github.com/fracpete/jnb2docker</developerConnection>
-    <url>https://github.com/fracpete/jnb2docker</url>
+    <connection>scm:git:ssh://git@github.com/taiao/jnb2docker</connection>
+    <developerConnection>scm:git:ssh://git@github.com/taiao/jnb2docker</developerConnection>
+    <url>https://github.com/taiao/jnb2docker</url>
     <tag>HEAD</tag>
   </scm>
 
