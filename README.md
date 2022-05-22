@@ -188,10 +188,11 @@ of data gets reduced to 36 rows.
 
 ## Releases
 
-* [0.0.4](https://github.com/fracpete/jnb2docker/releases/download/jnb2docker-0.0.4/jnb2docker-0.0.4-spring-boot.jar)
-* [0.0.3](https://github.com/fracpete/jnb2docker/releases/download/jnb2docker-0.0.3/jnb2docker-0.0.3-spring-boot.jar)
-* [0.0.2](https://github.com/fracpete/jnb2docker/releases/download/jnb2docker-0.0.2/jnb2docker-0.0.2-spring-boot.jar)
-* [0.0.1](https://github.com/fracpete/jnb2docker/releases/download/jnb2docker-0.0.1/jnb2docker-0.0.1-spring-boot.jar)
+* [0.0.5](https://github.com/taiao/jnb2docker/releases/download/jnb2docker-0.0.5/jnb2docker-0.0.5-spring-boot.jar)
+* [0.0.4](https://github.com/taiao/jnb2docker/releases/download/jnb2docker-0.0.4/jnb2docker-0.0.4-spring-boot.jar)
+* [0.0.3](https://github.com/taiao/jnb2docker/releases/download/jnb2docker-0.0.3/jnb2docker-0.0.3-spring-boot.jar)
+* [0.0.2](https://github.com/taiao/jnb2docker/releases/download/jnb2docker-0.0.2/jnb2docker-0.0.2-spring-boot.jar)
+* [0.0.1](https://github.com/taiao/jnb2docker/releases/download/jnb2docker-0.0.1/jnb2docker-0.0.1-spring-boot.jar)
 
 
 ## Maven
@@ -200,6 +201,6 @@ of data gets reduced to 36 rows.
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>jnb2docker</artifactId>
-      <version>0.0.4</version>
+      <version>0.0.5</version>
     </dependency>
 ```
