@@ -80,25 +80,17 @@
   </properties>
 
   <scm>
-    <connection>scm:git:https://github.com/fracpete/jnb2docker</connection>
-    <developerConnection>scm:git:https://github.com/fracpete/jnb2docker</developerConnection>
+    <connection>scm:git:ssh://git@github.com/fracpete/jnb2docker</connection>
+    <developerConnection>scm:git:ssh://git@github.com/fracpete/jnb2docker</developerConnection>
     <url>https://github.com/fracpete/jnb2docker</url>
     <tag>HEAD</tag>
   </scm>
 
   <dependencies>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.13.1</version>
-      <type>jar</type>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>bootstrapp</artifactId>
-      <version>0.1.5</version>
+      <version>0.1.11</version>
     </dependency>
 
     <dependency>
